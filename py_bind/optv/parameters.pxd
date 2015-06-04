@@ -19,5 +19,4 @@ cdef class MultimediaParams:
 
 cdef class ShakingParams:
     cdef shaking_par* _shaking_par
-    #cdef shaking_par* read_shaking_par(char * file_name)
     

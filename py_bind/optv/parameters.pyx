@@ -1,15 +1,18 @@
-#Implementation of Python binding to parameters.h
+# Implementation of Python binding to parameters.h
 from libc.stdlib cimport malloc, free
 import numpy
+from __builtin__ import False
+from optv.parameters import ShakingParams
 
 cdef extern from "optv/parameters.h":
-    shaking_par* c_read_shaking_par "read_shaking_par"(char* file_name)
+    shaking_par * c_read_shaking_par "read_shaking_par"(char * file_name)
+    int c_compare_shaking_par "compare_shaking_par"(shaking_par * s1, shaking_par * s2)
     
 cdef class MultimediaParams:
     
     def __init__(self, nlay, n1, n2, d, n3, lut):
         
-        self._mm_np = <mm_np *>malloc(sizeof(mm_np))
+        self._mm_np = < mm_np *> malloc(sizeof(mm_np))
         
         self.set_nlay(nlay)
         self.set_n1(n1)
@@ -30,7 +33,7 @@ cdef class MultimediaParams:
     def set_n1(self, n1):
         self._mm_np[0].n1 = n1
         
-    def get_n2(self):#TODO return numpy
+    def get_n2(self):  # TODO return numpy
         arr_size = sizeof(self._mm_np[0].n2) / sizeof(self._mm_np[0].n2[0])
         n2_np_arr = numpy.empty(arr_size)
         for i in range(len(n2_np_arr)):
@@ -66,16 +69,16 @@ cdef class MultimediaParams:
         self._mm_np[0].lut = lut
         
     def __str__(self):
-        n2_str="{"
-        for i in range(sizeof(self._mm_np[0].n2) / sizeof(self._mm_np[0].n2[0]) -1 ):
-            n2_str = n2_str+ str(self._mm_np[0].n2[i]) + ", "
-        n2_str += str(self._mm_np[0].n2[i+1]) + "}"
+        n2_str = "{"
+        for i in range(sizeof(self._mm_np[0].n2) / sizeof(self._mm_np[0].n2[0]) - 1):
+            n2_str = n2_str + str(self._mm_np[0].n2[i]) + ", "
+        n2_str += str(self._mm_np[0].n2[i + 1]) + "}"
         
-        d_str="{"
-        for i in range(sizeof(self._mm_np[0].d) / sizeof(self._mm_np[0].d[0]) -1 ) :
+        d_str = "{"
+        for i in range(sizeof(self._mm_np[0].d) / sizeof(self._mm_np[0].d[0]) - 1) :
             d_str += str(self._mm_np[0].d[i]) + ", "
             
-        d_str += str(self._mm_np[0].d[i+1]) + "}"
+        d_str += str(self._mm_np[0].d[i + 1]) + "}"
         
         return "nlay=\t{} \nn1=\t{} \nn2=\t{} \nd=\t{} \nn3=\t{} \nlut=\t{} ".format(
                 str(self._mm_np[0].nlay),
@@ -88,20 +91,36 @@ cdef class MultimediaParams:
     def __dealloc__(self):
         free(self._mm_np)
             
-# Binding to shaking_par C struct for pythonic access
+# Wrapping the shaking_par C struct for pythonic access
+# Binding the read_shaking_par C function
+# Objects of this type can be checked for equality using "==" and "!=" operators 
 cdef class ShakingParams:
-
-    def __init__(self, seq_first, seq_last, max_shaking_points, max_shaking_frames):
         
+    def __init__(self, seq_first, seq_last, max_shaking_points, max_shaking_frames):
         self._shaking_par = < shaking_par *> malloc(sizeof(shaking_par))
         self.set_seq_first(seq_first)
         self.set_seq_last(seq_last)
         self.set_max_shaking_points(max_shaking_points)
         self.set_max_shaking_frames(max_shaking_frames)
-
-    def py_read_shaking_par(self, file_name):
-        self._shaking_par = c_read_shaking_par(file_name)
         
+    # Reads shaking parameters from specified full file path 
+    def read_shaking_par(self, file_name):
+        self._shaking_par = c_read_shaking_par(file_name)
+    
+    # Checks for equality between this and other ShakingParams objects
+    # Gives the ability to use "==" and "!=" operators on two ShakingParams objects
+    def __richcmp__(ShakingParams self, ShakingParams other, operator):
+        if (operator==2): # "==" action was performed
+            if (c_compare_shaking_par(self._shaking_par,
+                                    other._shaking_par) != 0):
+                return True
+            else:
+                return False
+        else:
+            if(operator==3): # "!=" action was performed
+                return not self==other # change the operator to "==" and recursively check the opposite 
+               
+    # Getters and setters  
     def get_seq_first(self):
         return self._shaking_par[0].seq_first
     
@@ -125,6 +144,7 @@ cdef class ShakingParams:
     
     def set_max_shaking_frames(self, max_shaking_frames):
         self._shaking_par[0].max_shaking_frames = max_shaking_frames
-        
+    
+    # Memory freeing
     def __dealloc__(self):
         free(self._shaking_par)
