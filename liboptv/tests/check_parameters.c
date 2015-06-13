@@ -5,6 +5,21 @@
 #include <stdio.h>
 #include "parameters.h"
 
+START_TEST( test_read_shaking_par)
+{
+	shaking_par * sp_test;
+	shaking_par sp_correct = { 410000, 411055, 100, 3 };//according to current contents in shaking.par text file
+
+	sp_test = read_shaking_par("testing_fodder/parameters/shaking.par");
+
+	fail_unless(compare_shaking_par(sp_test, &sp_correct));
+
+	sp_correct = {0, 0, 0, 0};
+	fail_if(compare_shaking_par(sp_test, &sp_correct));
+
+}
+END_TEST
+
 START_TEST(test_read_compare_mm_np_par)
 {
 	mm_np mm1,mm2;

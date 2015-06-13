@@ -337,3 +337,57 @@ int compare_mm_np(mm_np *mm_np1, mm_np *mm_np2)
 		return 0;
 	return 1;
 }
+
+/* read_shaking_par() reads 4 shaking parameters from a text file line by line
+
+ Arguments:
+ char *filename - path to the text file containing the parameters.
+
+ Returns:
+ Pointer to a newly-allocated shaking_par structure. Don't forget to free
+ the new memory that is allocated for the image names.
+ Returns NULL in case of any reading error.
+ */
+shaking_par * read_shaking_par(char* filename) {
+	FILE *par_file;
+	shaking_par *ret;	//returned pointer to shaking_par struct
+
+	par_file = fopen(filename, "r");
+	if (par_file == NULL) {
+		printf("Failed to open %s\n", filename);
+		return NULL;
+	}
+
+	ret = (shaking_par *) malloc(sizeof(shaking_par));
+
+	if (	   fscanf(par_file, "%d\n", &(ret->seq_first)) 				== 0
+			|| fscanf(par_file, "%d\n", &(ret->seq_last)) 			== 0
+			|| fscanf(par_file, "%d\n", &(ret->max_shaking_points)) 	== 0
+			|| fscanf(par_file, "%d\n", &(ret->max_shaking_frames)) 	== 0 )
+		goto handle_error;
+
+	fclose(par_file);
+	return ret;
+
+handle_error:
+	printf("Error reading shaking parameters from %s\n", filename);
+	free(ret);
+	fclose(par_file);
+	return NULL;
+}
+
+/* compare_shaking_par(shaking_par *, shaking_par * ) checks deep equality between two shaking_par structs.
+ Arguments: shaking_par * s1, shaking_par * s2 - pointers to the structs for comparison.
+
+ Returns:
+ True (1) if equal, false (0) otherwise.
+ */
+int compare_shaking_par(shaking_par * s1, shaking_par * s2) {
+	if (		s1->seq_first			!= 	s2->seq_first
+			||	s1->seq_last 			!= 	s2->seq_last
+			||	s1->max_shaking_points	!=	s2->max_shaking_points
+			||	s1->max_shaking_frames	!=	s2->max_shaking_frames )
+		return 0;
+	return 1;
+}
+
