@@ -1,4 +1,4 @@
-# Implementation of Python binding to parameters.h
+# Implementations of Python bindings to C parameters.h
 from libc.stdlib cimport malloc, free
 import numpy
 
@@ -7,17 +7,17 @@ cdef extern from "optv/parameters.h":
     int c_compare_shaking_par "compare_shaking_par"(shaking_par * s1, shaking_par * s2)
     
 cdef class MultimediaParams:
-    
-    def __init__(self, nlay, n1, n2, d, n3, lut):
+
+    def __init__(self, **kwargs):
         
-        self._mm_np = < mm_np *> malloc(sizeof(mm_np))
+        self._mm_np = <mm_np *>malloc(sizeof(mm_np))
         
-        self.set_nlay(nlay)
-        self.set_n1(n1)
-        self.set_n2(n2)
-        self.set_d(d)
-        self.set_n3(n3)
-        self.set_lut(lut)
+        self.set_nlay(kwargs['nlay'])
+        self.set_n1(kwargs['n1'])
+        self.set_n2(kwargs['n2'])
+        self.set_d(kwargs['d'])
+        self.set_n3(kwargs['n3'])
+        self.set_lut(kwargs['lut'])
     
     def get_nlay(self):
         return self._mm_np[0].nlay
@@ -31,7 +31,7 @@ cdef class MultimediaParams:
     def set_n1(self, n1):
         self._mm_np[0].n1 = n1
         
-    def get_n2(self):
+    def get_n2(self):#TODO return numpy
         arr_size = sizeof(self._mm_np[0].n2) / sizeof(self._mm_np[0].n2[0])
         n2_np_arr = numpy.empty(arr_size)
         for i in range(len(n2_np_arr)):
@@ -67,16 +67,16 @@ cdef class MultimediaParams:
         self._mm_np[0].lut = lut
         
     def __str__(self):
-        n2_str = "{"
-        for i in range(sizeof(self._mm_np[0].n2) / sizeof(self._mm_np[0].n2[0]) - 1):
-            n2_str = n2_str + str(self._mm_np[0].n2[i]) + ", "
-        n2_str += str(self._mm_np[0].n2[i + 1]) + "}"
+        n2_str="{"
+        for i in range(sizeof(self._mm_np[0].n2) / sizeof(self._mm_np[0].n2[0]) -1 ):
+            n2_str = n2_str+ str(self._mm_np[0].n2[i]) + ", "
+        n2_str += str(self._mm_np[0].n2[i+1]) + "}"
         
-        d_str = "{"
-        for i in range(sizeof(self._mm_np[0].d) / sizeof(self._mm_np[0].d[0]) - 1) :
+        d_str="{"
+        for i in range(sizeof(self._mm_np[0].d) / sizeof(self._mm_np[0].d[0]) -1 ) :
             d_str += str(self._mm_np[0].d[i]) + ", "
             
-        d_str += str(self._mm_np[0].d[i + 1]) + "}"
+        d_str += str(self._mm_np[0].d[i+1]) + "}"
         
         return "nlay=\t{} \nn1=\t{} \nn2=\t{} \nd=\t{} \nn3=\t{} \nlut=\t{} ".format(
                 str(self._mm_np[0].nlay),
@@ -86,8 +86,8 @@ cdef class MultimediaParams:
                 str(self._mm_np[0].n3),
                 str(self._mm_np[0].lut))
         
-    def __dealloc__(self):
-        free(self._mm_np)
+        def __dealloc__(self):
+            free(self._mm_np)
             
 # Wrapping the shaking_par C struct for pythonic access
 # Binding the read_shaking_par C function
@@ -116,7 +116,7 @@ cdef class ShakingParams:
                 return False
         else:
             if(operator==3): # "!=" action was performed
-                return not self==other # change the operator to "==" and recursively check the opposite 
+                return not self==other # change the operator to "==" and recursively check the opposite
                
     # Getters and setters  
     def get_seq_first(self):
