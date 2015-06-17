@@ -34,8 +34,7 @@ class Test_Parameters_binding(unittest.TestCase):
         # checking C read_shaking_par function
         # read shaking parameters from a file and
         # verify the parameters were read correctly according to contents of specified file 
-        sp1.read_shaking_par("/home/student/Desktop/Max_OpenPtv/" + 
-                               "liboptv/tests/testing_fodder/parameters/shaking.par")
+        sp1.read_shaking_par("testing_fodder/parameters/shaking.par")
         self.failUnlessEqual(sp1.get_seq_first(), 410000)
         self.failUnlessEqual(sp1.get_seq_last(), 411055)
         self.failUnlessEqual(sp1.get_max_shaking_points(), 100)
@@ -51,6 +50,11 @@ class Test_Parameters_binding(unittest.TestCase):
         self.failUnlessEqual(sp2.get_max_shaking_frames(), 3)
         
         # now we have two identical ShakingParams objects (sp1 and sp2) for comparison
+        # PLEASE NOTE that Python will perform the comparison through function defined in ShakingParams class:
+        # def __richcmp__ (ShakingParams self, ShakingParams other, operator):  
+        # The third parameter is an integer value to indicate the operation performed: 2 for '=' , 3 for '!=' (you must refer to them separately). 
+        # For more info: http://docs.cython.org/src/userguide/special_methods.html#rich-comparisons
+        # So in order to check the comparisons '==' as well as '!=' must be passed:
         self.assertTrue(sp1==sp2)
         self.assertFalse(sp1!=sp2)
         

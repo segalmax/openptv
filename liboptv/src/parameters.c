@@ -360,20 +360,20 @@ shaking_par * read_shaking_par(char* filename) {
 
 	ret = (shaking_par *) malloc(sizeof(shaking_par));
 
-	if (	   fscanf(par_file, "%d\n", &(ret->seq_first)) 				== 0
+	if (fscanf(par_file, "%d\n", &(ret->seq_first)) 				== 0
 			|| fscanf(par_file, "%d\n", &(ret->seq_last)) 			== 0
-			|| fscanf(par_file, "%d\n", &(ret->max_shaking_points)) 	== 0
-			|| fscanf(par_file, "%d\n", &(ret->max_shaking_frames)) 	== 0 )
-		goto handle_error;
+			|| fscanf(par_file, "%d\n", &(ret->max_shaking_points)) == 0
+			|| fscanf(par_file, "%d\n", &(ret->max_shaking_frames)) == 0)
+	{
+		printf("Error reading shaking parameters from %s\n", filename);
+		free(ret);
+		fclose(par_file);
+		return NULL;
+	}
 
 	fclose(par_file);
 	return ret;
 
-handle_error:
-	printf("Error reading shaking parameters from %s\n", filename);
-	free(ret);
-	fclose(par_file);
-	return NULL;
 }
 
 /* compare_shaking_par(shaking_par *, shaking_par * ) checks deep equality between two shaking_par structs.
