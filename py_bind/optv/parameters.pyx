@@ -31,7 +31,7 @@ cdef class MultimediaParams:
     def set_n1(self, n1):
         self._mm_np[0].n1 = n1
         
-    def get_n2(self):#TODO return numpy
+    def get_n2(self):
         arr_size = sizeof(self._mm_np[0].n2) / sizeof(self._mm_np[0].n2[0])
         n2_np_arr = numpy.empty(arr_size)
         for i in range(len(n2_np_arr)):
