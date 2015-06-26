@@ -88,7 +88,7 @@ cdef class MultimediaParams:
         
         def __dealloc__(self):
             free(self._mm_np)
-            
+
 # Wrapping the shaking_par C struct for pythonic access
 # Binding the read_shaking_par C function
 # Objects of this type can be checked for equality using "==" and "!=" operators 
