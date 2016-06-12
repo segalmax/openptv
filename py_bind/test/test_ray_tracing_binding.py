@@ -13,7 +13,6 @@ class Test_ray_tracing(unittest.TestCase):
         # create and initialize Calibration instance for testing 
         self.cal = Calibration()
         
-        ###############
         self.cal.set_pos(np.array([0., 0., 100.])) 
         self.cal.set_angles(np.array([0., 0., 0.]))
         self.cal.set_primary_point(np.array([0., 0., 100.]))
@@ -21,16 +20,11 @@ class Test_ray_tracing(unittest.TestCase):
         self.cal.set_radial_distortion(np.array([0., 0., 0.]))
         self.cal.set_decentering(np.array([0, 0]))
         self.cal.set_affine_trans(np.array([1, 0]))
-        print self.cal.get_rotation_matrix()
-        self.cal.set_rotation_matrix(np.array([ [1, 0.2, -0.3],
-                                                [0.2, 1, 0.0],
-                                                [-0.3, 0.0, 1.0]]))
-        print self.cal.get_rotation_matrix()
+        
         self.mult = MultimediaParams(n1=1.,
                                      n2=np.array([1.49, 0., 0.]),
                                      n3=1.33,
                                      d=np.array([5., 0., 0.]))
-        ############################
         
     def test_dimensions_check(self):
         with self.assertRaises(TypeError):
@@ -48,19 +42,20 @@ class Test_ray_tracing(unittest.TestCase):
         
     def test_ray_tracing_function(self):
         
-        correct_verts_out = np.array([[ 110.40694443, 88.32578834, 0.98807606],
-                                      [ 110.40694443, 88.32578834, 0.98807606]])
-        correct_directs_out = np.array([[ 0.38796002, 0.31040523, -0.86783386],
-                                        [ 0.38796002, 0.31040523, -0.86783386]])
+        correct_verts_out = np.array([[ 96.32625809, 96.32649965, 0.98940412],
+                                      [ 96.32625809, 96.32649965, 0.98940412]])
+        correct_directs_out = np.array([[ 0.43406242, 0.43409439, -0.78939969],
+                                        [ 0.43406242, 0.43409439, -0.78939969]])
         
         out_tuple = ray_tracing(self.input,
-                        self.cal,
-                        self.mult,
-                        verts_out=np.full((self.rows, 3), 99),
-                        directs_out=np.full((self.rows, 3), 88))
+                                self.cal,
+                                self.mult,
+                                verts_out=np.full((self.rows, 3), 99),
+                                directs_out=np.full((self.rows, 3), 88))
         
         np.testing.assert_array_almost_equal(out_tuple[0], correct_verts_out, decimal=7)
         np.testing.assert_array_almost_equal(out_tuple[1], correct_directs_out, decimal=7)
+        
     def tearDown(self):
         pass
 

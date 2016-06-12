@@ -111,14 +111,6 @@ cdef class Calibration:
         
         return ret_dmatrix_np
     
-    def set_rotation_matrix(self,mat):
-        """
-        Sets a 3x3 numpy array that represents Exterior's rotation matrix.
-        """
-        for i in range(3):
-            for j in range(3):
-                self._calibration[0].ext_par.dm[i][j]=mat[i][j]
-    
     def set_primary_point(self, cnp.ndarray prim_point_pos):
         """
         Set the camera's primary point position (a.k.a. interior orientation).
